@@ -2,7 +2,7 @@ import turtle
 import time
 import random
 
-delay = 0.1
+delay = 0.05
 
 # Set up Screen
 wn = turtle.Screen()
@@ -126,8 +126,12 @@ while True:
     # Collision Detection
     for pipe in range(len(PIPES_TOP)):
         # print(PIPES_TOP[index-1].xcor())
-        if Bird.xcor() <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor() >= PIPES_TOP[pipe-1].xcor()-25:
+        if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
             print("PIPE!!!")
+            if Bird.ycor()+5 >= PIPES_TOP[pipe-1].ycor():
+                print("Collision")
+            elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
+                print("Collision")
 
     move()
     move_Scroll()
