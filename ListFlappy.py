@@ -3,6 +3,7 @@ import time
 import random
 
 delay = 0.05
+delta_bg = -10
 
 # Set up Screen
 wn = turtle.Screen()
@@ -11,26 +12,8 @@ wn.bgcolor('black')
 wn.setup(width=600, height=600)
 wn.tracer(0)# Turns off Screen Updates
 
-
-###  Try and get a turtle to scroll left then loop back arround ###
-Scroll = turtle.Turtle()
-Scroll.speed(0)
-Scroll.shape("triangle")
-Scroll.color("red")
-Scroll.goto(0,0)
-Scroll.penup()
-
 right_edge = 300
 left_edge = -300
-
-def move_Scroll():
-    if Scroll.xcor() > left_edge:
-        x = Scroll.xcor()
-        Scroll.setx(x - 10)
-
-    else:
-        Scroll.setx(right_edge)
-
 
 # Create Player "BIRD"
 Bird = turtle.Turtle()
@@ -56,7 +39,7 @@ def move():
 
     if Bird.direction == "fall":
         y = Bird.ycor()
-        Bird.sety(y - 5)
+        Bird.sety(y - 10)
 
 # Key Binding
 wn.listen()
@@ -79,6 +62,13 @@ PIPES_TOP = []
 PIPES_BOT = []
             #[pos, height, gap, width]
 FIRST_PIPE = [  0,   0, 150,     0]
+
+def move_pipes():
+    for index in range (len(PIPES_TOP)):
+        x = PIPES_TOP[index-1].xcor()
+        x += delta_bg
+        PIPES_TOP[index-1].setx(x)
+        PIPES_BOT[index-1].setx(x)
 
 # ADD new Top Pipe to list
 def make_top():
@@ -111,16 +101,20 @@ def make_bot():
 
 # Define Create Pipe
 def create_pipe():
-    if len(PIPES_TOP) < 2:
-        if Scroll.xcor() < left_edge +50:
-            make_top()
-            make_bot()
-    
-    for index in range(len(PIPES_TOP)):
-        x = Scroll.xcor()
-        PIPES_TOP[index-1].setx(x + (index * 200))
-        PIPES_BOT[index-1].setx(x + (index * 200))
+    if len(PIPES_TOP) < 5:
+        make_top()
+        make_bot()
 
+# Check if ready for new pipe
+spacing = 200
+def check_pipes():
+    if PIPES_TOP[len(PIPES_TOP)-1].xcor() + spacing < right_edge:
+        create_pipe()
+    
+    if PIPES_TOP[0].xcor() + 100 < left_edge:
+        PIPES_TOP.remove(PIPES_TOP[0])
+        PIPES_BOT.remove(PIPES_BOT[0])
+    
 # Define Collision Detection
 def detect_ouch():
     # Collision Detection
@@ -128,27 +122,20 @@ def detect_ouch():
         # print(PIPES_TOP[index-1].xcor())
         if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
             print("PIPE!!!")
+            print(len(PIPES_TOP))
             if Bird.ycor()+5 >= PIPES_TOP[pipe-1].ycor():
                 print("Collision")
             elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
                 print("Collision")
 
+make_top()
+make_bot()
+
 while True:
-    wn.update()
-
-    create_pipe()    
+    wn.update()   
     detect_ouch()
-    # # Collision Detection
-    # for pipe in range(len(PIPES_TOP)):
-    #     # print(PIPES_TOP[index-1].xcor())
-    #     if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
-    #         print("PIPE!!!")
-    #         if Bird.ycor()+5 >= PIPES_TOP[pipe-1].ycor():
-    #             print("Collision")
-    #         elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
-    #             print("Collision")
-
     move()
-    move_Scroll()
+    move_pipes()
+    check_pipes()
     time.sleep(delay)
 wn.mainloop()
