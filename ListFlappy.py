@@ -108,11 +108,9 @@ def make_bot():
     b.setx(right_edge)
     PIPES_BOT.append(b)
 
-while True:
-    wn.update()
-        
-    # Create Pipes
-    # print(PIPES_TOP)
+
+# Define Create Pipe
+def create_pipe():
     if len(PIPES_TOP) < 2:
         if Scroll.xcor() < left_edge +50:
             make_top()
@@ -123,6 +121,8 @@ while True:
         PIPES_TOP[index-1].setx(x + (index * 200))
         PIPES_BOT[index-1].setx(x + (index * 200))
 
+# Define Collision Detection
+def detect_ouch():
     # Collision Detection
     for pipe in range(len(PIPES_TOP)):
         # print(PIPES_TOP[index-1].xcor())
@@ -132,6 +132,21 @@ while True:
                 print("Collision")
             elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
                 print("Collision")
+
+while True:
+    wn.update()
+
+    create_pipe()    
+    detect_ouch()
+    # # Collision Detection
+    # for pipe in range(len(PIPES_TOP)):
+    #     # print(PIPES_TOP[index-1].xcor())
+    #     if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
+    #         print("PIPE!!!")
+    #         if Bird.ycor()+5 >= PIPES_TOP[pipe-1].ycor():
+    #             print("Collision")
+    #         elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
+    #             print("Collision")
 
     move()
     move_Scroll()
