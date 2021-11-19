@@ -26,7 +26,7 @@ left_edge = -300
 def move_Scroll():
     if Scroll.xcor() > left_edge:
         x = Scroll.xcor()
-        Scroll.setx(x - 50)
+        Scroll.setx(x - 10)
 
     else:
         Scroll.setx(right_edge)
@@ -112,18 +112,22 @@ while True:
     wn.update()
         
     # Create Pipes
-    print(PIPES_TOP)
-    if len(PIPES_TOP) < 4:
+    # print(PIPES_TOP)
+    if len(PIPES_TOP) < 2:
         if Scroll.xcor() < left_edge +50:
             make_top()
             make_bot()
     
     for index in range(len(PIPES_TOP)):
         x = Scroll.xcor()
-        PIPES_TOP[index-1].setx(x + (index * 100))
-        PIPES_BOT[index-1].setx(x + (index * 100))
+        PIPES_TOP[index-1].setx(x + (index * 200))
+        PIPES_BOT[index-1].setx(x + (index * 200))
 
-
+    # Collision Detection
+    for pipe in range(len(PIPES_TOP)):
+        # print(PIPES_TOP[index-1].xcor())
+        if Bird.xcor() <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor() >= PIPES_TOP[pipe-1].xcor()-25:
+            print("PIPE!!!")
 
     move()
     move_Scroll()
