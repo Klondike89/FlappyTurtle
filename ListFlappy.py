@@ -24,52 +24,43 @@ Bird.color("yellow")
 Bird.penup()
 Bird.direction = "stop"
 
-
-# Define Player Movment
+# Define Bird Movment
 def fly():
     Bird.direction = "fly"
-
 def fall():
     Bird.direction = "fall"
-
 def move():
     if Bird.direction == "fly":
         y = Bird.ycor()
         Bird.sety(y + 15)
-
     if Bird.direction == "fall":
         y = Bird.ycor()
         Bird.sety(y - 10)
 
-# Key Binding
+# Bird Key Binding
 wn.listen()
-wn.onkeypress(fly, "f")
-wn.onkeyrelease(fall, "f")
-
-
+wn.onkeypress(fly, "space")
+wn.onkeyrelease(fall, "space")
 
 # Create PIPE Shape
 shapeA = ((0,0), (900,0), (900,50), (0,50))
 shapeB = ((0,0), (-900,0), (-900,50), (0,50))
-
 wn.register_shape("pipeA", shapeA)
 wn.register_shape("pipeB", shapeB)
 
 # Define Random Pipe Variables
-p_close = 150
+p_close = 250
 p_far = 400
-gap_small = 50
+gap_small = 100
 gap_large = 200
-h_min = -300
-h_max = 300
-
+h_min = -200
+h_max = 200
 
 # List of pipes
 PIPES_TOP = []
 PIPES_BOT = []
-            #[pos, height, gap, width]
-FIRST_PIPE = [  0,   0, 150,     0]
 
+# Move Pipes
 def move_pipes():
     for index in range (len(PIPES_TOP)):
         x = PIPES_TOP[index-1].xcor()
@@ -79,8 +70,6 @@ def move_pipes():
 
 # ADD new Top Pipe to list
 def make_top(gap, height):
-    # height = FIRST_PIPE[1]
-    # gap = FIRST_PIPE[2]
     t = turtle.Turtle()
     t.speed(0)
     t.shape("pipeB")
@@ -93,8 +82,6 @@ def make_top(gap, height):
   
 # ADD new Bottom Pipe to list
 def make_bot(gap, height):
-    # height = FIRST_PIPE[1]
-    # gap = FIRST_PIPE[2]
     b = turtle.Turtle()
     b.speed(0)
     b.shape("pipeA")
@@ -105,7 +92,6 @@ def make_bot(gap, height):
     b.setx(right_edge)
     PIPES_BOT.append(b)
 
-
 # Define Create Pipe
 def create_pipe():
     if len(PIPES_TOP) < 5:
@@ -115,21 +101,17 @@ def create_pipe():
         make_bot(gap, height)
 
 # Check if ready for new pipe
-# spacing = 100
 def check_pipes():
     spacing = random.randint(p_close,p_far)
     if PIPES_TOP[len(PIPES_TOP)-1].xcor() + spacing < right_edge:
         create_pipe()
-    
     if PIPES_TOP[0].xcor() + 100 < left_edge:
         PIPES_TOP.remove(PIPES_TOP[0])
         PIPES_BOT.remove(PIPES_BOT[0])
     
 # Define Collision Detection
 def detect_ouch():
-    # Collision Detection
     for pipe in range(len(PIPES_TOP)):
-        # print(PIPES_TOP[index-1].xcor())
         if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
             print("PIPE!!!")
             print(len(PIPES_TOP))
