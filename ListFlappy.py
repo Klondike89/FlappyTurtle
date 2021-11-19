@@ -55,7 +55,14 @@ shapeB = ((0,0), (-900,0), (-900,50), (0,50))
 wn.register_shape("pipeA", shapeA)
 wn.register_shape("pipeB", shapeB)
 
-next_pipe = 0
+# Define Random Pipe Variables
+p_close = 150
+p_far = 400
+gap_small = 50
+gap_large = 200
+h_min = -300
+h_max = 300
+
 
 # List of pipes
 PIPES_TOP = []
@@ -71,9 +78,9 @@ def move_pipes():
         PIPES_BOT[index-1].setx(x)
 
 # ADD new Top Pipe to list
-def make_top():
-    height = FIRST_PIPE[1]
-    gap = FIRST_PIPE[2]
+def make_top(gap, height):
+    # height = FIRST_PIPE[1]
+    # gap = FIRST_PIPE[2]
     t = turtle.Turtle()
     t.speed(0)
     t.shape("pipeB")
@@ -85,9 +92,9 @@ def make_top():
     PIPES_TOP.append(t)
   
 # ADD new Bottom Pipe to list
-def make_bot():
-    height = FIRST_PIPE[1]
-    gap = FIRST_PIPE[2]
+def make_bot(gap, height):
+    # height = FIRST_PIPE[1]
+    # gap = FIRST_PIPE[2]
     b = turtle.Turtle()
     b.speed(0)
     b.shape("pipeA")
@@ -102,12 +109,15 @@ def make_bot():
 # Define Create Pipe
 def create_pipe():
     if len(PIPES_TOP) < 5:
-        make_top()
-        make_bot()
+        gap = random.randint(gap_small,gap_large)
+        height = random.randint(h_min,h_max)
+        make_top(gap, height)
+        make_bot(gap, height)
 
 # Check if ready for new pipe
-spacing = 200
+# spacing = 100
 def check_pipes():
+    spacing = random.randint(p_close,p_far)
     if PIPES_TOP[len(PIPES_TOP)-1].xcor() + spacing < right_edge:
         create_pipe()
     
@@ -128,8 +138,8 @@ def detect_ouch():
             elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
                 print("Collision")
 
-make_top()
-make_bot()
+make_top(150,0)
+make_bot(150,0)
 
 while True:
     wn.update()   
