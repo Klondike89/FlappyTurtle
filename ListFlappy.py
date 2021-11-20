@@ -3,9 +3,18 @@ import time
 import random
 
 running = True
+MEM_GOAL = True
+goal = False
+CHEATS_ON = False
+
+# Game Variables
 delay = 0.05
 screen_speed = 0
 delta_bg = -5
+
+# Score
+score = 0
+high_score = 0
 
 # Set up Screen
 wn = turtle.Screen()
@@ -22,6 +31,16 @@ def quit():
     global running
     running = False
 
+board = turtle.Turtle()
+board.speed(0)
+board.shape("square")
+board.color("white")
+board.penup()
+board.hideturtle()
+board.goto(0,200)
+board.write("Score: {} High score: {}".format(score, high_score),
+                align="center", font=("Courier", 24, "normal"))
+
 # Create Player "BIRD"
 Bird = turtle.Turtle()
 Bird.speed(0)
@@ -31,8 +50,8 @@ Bird.penup()
 Bird.turtlesize(1.5,1.5)
 
 def hatch_bird():
-    Bird.direction = "stop"
     Bird.goto(0,0)
+    Bird.direction = "stop"
     
 hatch_bird()
 
@@ -72,6 +91,7 @@ h_max = 200
 # List of pipes
 PIPES_TOP = []
 PIPES_BOT = []
+PIPES_NXT = []
 
 # Move Pipes
 def move_pipes():
@@ -93,6 +113,7 @@ def make_top(gap, height):
     t.sety(height + (gap * 0.5))
     t.setx(right_edge)
     PIPES_TOP.append(t)
+    PIPES_NXT.append(t)
   
 # ADD new Bottom Pipe to list
 def make_bot(gap, height):
@@ -141,12 +162,16 @@ def game_restart():
 
 # Define Collision Detection
 def detect_ouch():
+    global goal, MEM_GOAL
     # Detect collision with floor or cieling
     if Bird.ycor()-10 < -300 or Bird.ycor()+10 > 300:
         game_restart()
     # Detect collision with pipes
     for pipe in range(len(PIPES_TOP)):
+        ######## back of turtle back of pipe  ############  front of turtle front of pipe
         if Bird.xcor()-40 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor() >= PIPES_TOP[pipe-1].xcor()-25:
+            goal = True
+            MEM_GOAL = True
             # print("PIPE!!!")
             # print(len(PIPES_TOP))
             if Bird.ycor()+10 >= PIPES_TOP[pipe-1].ycor():
@@ -155,15 +180,33 @@ def detect_ouch():
             elif Bird.ycor()-10 <= PIPES_BOT[pipe-1].ycor():
                 print("Collision")
                 game_restart()
+        else:
+            goal = False   
 
 pipes_start()
 
 # Main Loop
 while running:
-    wn.update()   
+    wn.update()
     detect_ouch()
     move()
     move_pipes()
     check_pipes()
+
+    for index in range(len(PIPES_NXT)):
+        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+25:
+            if MEM_GOAL == True:
+                board.setx(left_edge*3)
+                board.clear()
+                score += 1
+            MEM_GOAL = False
+        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+50:
+            PIPES_NXT.remove(PIPES_NXT[0])
+
+    else:
+        board.goto(0,200)
+        board.write("Score: {} High score: {}".format(score, high_score),
+                    align="center", font=("Courier", 24, "normal"))
+
     time.sleep(delay)
 wn.bye()
