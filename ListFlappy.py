@@ -150,12 +150,17 @@ def pipes_start():
     
 # Game Start State
 def game_restart():
+    global score
     for pipe in range(len(PIPES_TOP)):
         PIPES_TOP[pipe-1].setx(left_edge*2)
         PIPES_BOT[pipe-1].setx(left_edge*2)
 
     PIPES_TOP.clear()
     PIPES_BOT.clear()
+    PIPES_NXT.clear()
+    score = 0
+    board.setx(left_edge*3)
+    board.clear()
     time.sleep(1.5)
     hatch_bird()
     pipes_start()
@@ -199,6 +204,8 @@ while running:
                 board.setx(left_edge*3)
                 board.clear()
                 score += 1
+                if score > high_score:
+                    high_score = score
             MEM_GOAL = False
         if Bird.xcor()-40 > PIPES_NXT[0].xcor()+50:
             PIPES_NXT.remove(PIPES_NXT[0])
