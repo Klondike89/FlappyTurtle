@@ -2,8 +2,10 @@ import turtle
 import time
 import random
 
+running = True
 delay = 0.05
-delta_bg = -10
+screen_speed = 0
+delta_bg = -5
 
 # Set up Screen
 wn = turtle.Screen()
@@ -15,14 +17,24 @@ wn.tracer(0)# Turns off Screen Updates
 right_edge = 300
 left_edge = -300
 
+# Def Quit
+def quit():
+    global running
+    running = False
+
 # Create Player "BIRD"
 Bird = turtle.Turtle()
 Bird.speed(0)
 Bird.shape("turtle")
-Bird.goto(0,0)
 Bird.color("yellow")
 Bird.penup()
-Bird.direction = "stop"
+Bird.turtlesize(1.5,1.5)
+
+def hatch_bird():
+    Bird.direction = "stop"
+    Bird.goto(0,0)
+    
+hatch_bird()
 
 # Define Bird Movment
 def fly():
@@ -41,6 +53,7 @@ def move():
 wn.listen()
 wn.onkeypress(fly, "space")
 wn.onkeyrelease(fall, "space")
+wn.onkeypress(quit, "Escape")
 
 # Create PIPE Shape
 shapeA = ((0,0), (900,0), (900,50), (0,50))
@@ -62,11 +75,12 @@ PIPES_BOT = []
 
 # Move Pipes
 def move_pipes():
-    for index in range (len(PIPES_TOP)):
-        x = PIPES_TOP[index-1].xcor()
-        x += delta_bg
-        PIPES_TOP[index-1].setx(x)
-        PIPES_BOT[index-1].setx(x)
+    if Bird.direction != "stop":
+        for index in range (len(PIPES_TOP)):
+            x = PIPES_TOP[index-1].xcor()
+            x += delta_bg
+            PIPES_TOP[index-1].setx(x)
+            PIPES_BOT[index-1].setx(x)
 
 # ADD new Top Pipe to list
 def make_top(gap, height):
@@ -108,26 +122,48 @@ def check_pipes():
     if PIPES_TOP[0].xcor() + 100 < left_edge:
         PIPES_TOP.remove(PIPES_TOP[0])
         PIPES_BOT.remove(PIPES_BOT[0])
+
+def pipes_start():
+    make_top(150,0)
+    make_bot(150,0)
     
+# Game Start State
+def game_restart():
+    for pipe in range(len(PIPES_TOP)):
+        PIPES_TOP[pipe-1].setx(left_edge*2)
+        PIPES_BOT[pipe-1].setx(left_edge*2)
+
+    PIPES_TOP.clear()
+    PIPES_BOT.clear()
+    time.sleep(1.5)
+    hatch_bird()
+    pipes_start()
+
 # Define Collision Detection
 def detect_ouch():
+    # Detect collision with floor or cieling
+    if Bird.ycor()-10 < -300 or Bird.ycor()+10 > 300:
+        game_restart()
+    # Detect collision with pipes
     for pipe in range(len(PIPES_TOP)):
-        if Bird.xcor()-5 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor()+5 >= PIPES_TOP[pipe-1].xcor()-25:
-            print("PIPE!!!")
-            print(len(PIPES_TOP))
-            if Bird.ycor()+5 >= PIPES_TOP[pipe-1].ycor():
+        if Bird.xcor()-40 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor() >= PIPES_TOP[pipe-1].xcor()-25:
+            # print("PIPE!!!")
+            # print(len(PIPES_TOP))
+            if Bird.ycor()+10 >= PIPES_TOP[pipe-1].ycor():
                 print("Collision")
-            elif Bird.ycor()-5 <= PIPES_BOT[pipe-1].ycor():
+                game_restart()
+            elif Bird.ycor()-10 <= PIPES_BOT[pipe-1].ycor():
                 print("Collision")
+                game_restart()
 
-make_top(150,0)
-make_bot(150,0)
+pipes_start()
 
-while True:
+# Main Loop
+while running:
     wn.update()   
     detect_ouch()
     move()
     move_pipes()
     check_pipes()
     time.sleep(delay)
-wn.mainloop()
+wn.bye()
