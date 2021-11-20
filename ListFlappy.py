@@ -3,11 +3,15 @@ import time
 import random
 
 running = True
-MEM_GOAL = True
+mem_goal = True
 goal = False
+
+# Cheat mode for testing.... or sneaky high scores!
 CHEATS_ON = False
 
-# Game Variables
+# Game Variables, Changing delay or delta_bg will effect how fast the bird "flys"
+# delay effects speed of both flying through the pipes and flapping/falling
+# delta_bg only effects speed of pipes 
 delay = 0.05
 screen_speed = 0
 delta_bg = -5
@@ -26,11 +30,12 @@ wn.tracer(0)# Turns off Screen Updates
 right_edge = 300
 left_edge = -300
 
-# Def Quit
+# Def Quit, Gracefully exit game with Escape key
 def quit():
     global running
     running = False
 
+# Create ScoreBoard
 board = turtle.Turtle()
 board.speed(0)
 board.shape("square")
@@ -40,6 +45,16 @@ board.hideturtle()
 board.goto(0,200)
 board.write("Score: {} High score: {}".format(score, high_score),
                 align="center", font=("Courier", 24, "normal"))
+
+# Create Directions Splash
+tip = turtle.Turtle()
+tip.speed(0)
+tip.shape("square")
+tip.color("white")
+tip.penup()
+tip.hideturtle()
+tip.goto(0,-200)
+tip.write("Use 'Space' key to play", align="center",font=("Courier", 26, "bold"))
 
 # Create Player "BIRD"
 Bird = turtle.Turtle()
@@ -55,9 +70,11 @@ def hatch_bird():
     
 hatch_bird()
 
-# Define Bird Movment
+# Define Bird Movment and clear Directions Splash on first use
 def fly():
     Bird.direction = "fly"
+    tip.setx(left_edge*3)
+    tip.clear()
 def fall():
     Bird.direction = "fall"
 def move():
@@ -144,11 +161,12 @@ def check_pipes():
         PIPES_TOP.remove(PIPES_TOP[0])
         PIPES_BOT.remove(PIPES_BOT[0])
 
+# Start State
 def pipes_start():
     make_top(150,0)
     make_bot(150,0)
     
-# Game Start State
+# ReStart State
 def game_restart():
     global score
     for pipe in range(len(PIPES_TOP)):
@@ -167,26 +185,52 @@ def game_restart():
 
 # Define Collision Detection
 def detect_ouch():
-    global goal, MEM_GOAL
+    global goal, mem_goal
     # Detect collision with floor or cieling
     if Bird.ycor()-10 < -300 or Bird.ycor()+10 > 300:
-        game_restart()
+        if CHEATS_ON == True:
+            if Bird.ycor()-10 < -200:
+                Bird.sety(-200)
+            if Bird.ycor()+10 > 200:
+                Bird.sety(200)
+        else:
+            game_restart()
     # Detect collision with pipes
     for pipe in range(len(PIPES_TOP)):
-        ######## back of turtle back of pipe  ############  front of turtle front of pipe
         if Bird.xcor()-40 <= PIPES_TOP[pipe-1].xcor()+25 and Bird.xcor() >= PIPES_TOP[pipe-1].xcor()-25:
+            # Prime variables for use in registering Scoring
             goal = True
-            MEM_GOAL = True
-            # print("PIPE!!!")
-            # print(len(PIPES_TOP))
-            if Bird.ycor()+10 >= PIPES_TOP[pipe-1].ycor():
-                print("Collision")
-                game_restart()
-            elif Bird.ycor()-10 <= PIPES_BOT[pipe-1].ycor():
-                print("Collision")
-                game_restart()
+            mem_goal = True
+            if CHEATS_ON != True:
+                if Bird.ycor()+10 >= PIPES_TOP[pipe-1].ycor():
+                    print("Collision")
+                    game_restart()
+                elif Bird.ycor()-10 <= PIPES_BOT[pipe-1].ycor():
+                    print("Collision")
+                    game_restart()
         else:
+            # Reset variable used in Scoring
             goal = False   
+
+# Update Score when Bird Fully Passes Pipe
+def update_score():
+    global score, high_score, mem_goal
+    for index in range(len(PIPES_NXT)):
+        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+25:
+            if mem_goal == True:
+                board.setx(left_edge*3)
+                board.clear()
+                score += 1
+                if score > high_score:
+                    high_score = score
+            mem_goal = False
+        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+50:
+            PIPES_NXT.remove(PIPES_NXT[0])
+
+    else:
+        board.goto(0,200)
+        board.write("Score: {} High score: {}".format(score, high_score),
+                    align="center", font=("Courier", 24, "normal"))
 
 pipes_start()
 
@@ -197,23 +241,6 @@ while running:
     move()
     move_pipes()
     check_pipes()
-
-    for index in range(len(PIPES_NXT)):
-        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+25:
-            if MEM_GOAL == True:
-                board.setx(left_edge*3)
-                board.clear()
-                score += 1
-                if score > high_score:
-                    high_score = score
-            MEM_GOAL = False
-        if Bird.xcor()-40 > PIPES_NXT[0].xcor()+50:
-            PIPES_NXT.remove(PIPES_NXT[0])
-
-    else:
-        board.goto(0,200)
-        board.write("Score: {} High score: {}".format(score, high_score),
-                    align="center", font=("Courier", 24, "normal"))
-
+    update_score()
     time.sleep(delay)
 wn.bye()
